@@ -5,6 +5,10 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+    
+concurrency:
+  group: selenium-cucumber-ci
+  cancel-in-progress: true    
 
 jobs:
   test:
@@ -43,3 +47,5 @@ jobs:
         with:
           name: cucumber-report
           path: target/cucumber-reporting-html/
+
+    
