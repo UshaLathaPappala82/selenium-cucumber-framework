@@ -16,7 +16,9 @@ public class LoginPage {
 	private By passwordField = By.id("password");
 	private By loginButton =By.id("submit");
 	
-    //Actions
+    //Actions 
+	//Actions
+	
 	public void enterUsername(String username)
 	{
 		driver.findElement(usernameField).sendKeys(username);
