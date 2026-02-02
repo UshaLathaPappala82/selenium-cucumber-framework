@@ -11,14 +11,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout the code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2️⃣ Set up Java
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # 3️⃣ Install Chrome browser
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      # 4️⃣ Set Chrome for headless testing
+      - name: Set Chrome options
+        run: echo 'export CHROME_BIN=/usr/bin/google-chrome' >> $GITHUB_ENV
+
+      # 5️⃣ Run Maven tests
       - name: Run Maven tests
         run: mvn clean test
+
+      # 6️⃣ Archive Cucumber HTML reports
+      - name: Archive Cucumber report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cucumber-report
+          path: target/cucumber-reporting-html/
