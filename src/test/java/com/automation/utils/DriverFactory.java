@@ -2,47 +2,72 @@ package com.automation.utils;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-
+import org.openqa.selenium.chrome.ChromeOptions;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class DriverFactory {
 
-    private static WebDriver driver;
+    // Sequential driver
+    private static WebDriver driverStatic;
 
-    public static WebDriver getDriver() {
-        if (driver == null) {
-        	String browser = ConfigReader.get("browser").toLowerCase();
-        	switch(browser) {
-        	case "chrome":
-        		WebDriverManager.chromedriver().setup();
-        		driver = new ChromeDriver();
-        		driver.manage().window().maximize();
-        		break;
-        	case "firefox":
-        		WebDriverManager.firefoxdriver().setup();
-        		driver = new FirefoxDriver();
-        		break;
-        	case "edge":
-        		WebDriverManager.edgedriver().setup();
-        		driver = new EdgeDriver();
-        		break;
-        	default:
-        		System.out.println("Browser not supported: " + browser + ". Using Chrome as default.");
-                WebDriverManager.chromedriver().setup();
-                driver = new ChromeDriver();
+    // Parallel driver
+    private static ThreadLocal<WebDriver> driverThread = new ThreadLocal<>();
+
+    /**
+     * Get WebDriver instance
+     * @param parallel true if running parallel scenarios
+     * @return WebDriver
+     */
+    public static WebDriver getDriver(boolean parallel) {
+        String headless = System.getProperty("headless");
+
+        if (parallel) {
+            if (driverThread.get() == null) {
+                driverThread.set(createChromeDriver(headless));
+            }
+            return driverThread.get();
+        } else {
+            if (driverStatic == null) {
+                driverStatic = createChromeDriver(headless);
+            }
+            return driverStatic;
         }
-        	
-        driver.manage().window().maximize();
-        }
-        return driver;
     }
 
-    public static void quitDriver() {
-        if (driver != null) {
-            driver.quit();
-            driver = null;
+    // Default method (sequential runs)
+    public static WebDriver getDriver() {
+        return getDriver(false);
+    }
+
+    private static WebDriver createChromeDriver(String headless) {
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        if ("true".equalsIgnoreCase(headless)) {
+            options.addArguments("--headless=new");
         }
+        return new ChromeDriver(options);
+    }
+
+    public static void quitDriver(boolean parallel) {
+        if (parallel) {
+            if (driverThread.get() != null) {
+                driverThread.get().quit();
+                driverThread.remove();
+            }
+        } else {
+            if (driverStatic != null) {
+                driverStatic.quit();
+                driverStatic = null;
+            }
+        }
+    }
+
+    // Default quit (sequential)
+    public static void quitDriver() {
+        quitDriver(false);
     }
 }

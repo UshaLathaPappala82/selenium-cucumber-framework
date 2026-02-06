@@ -1,7 +1,14 @@
-Feature: Sample feature
+Feature: Login Functionality
 
-  Scenario: Sample scenario
-    Given I am on the login page
-    When I enter username "student" and password "Password123"
-    And I click login
-    Then I should see the dashboard
+  Scenario Outline: Login with different credentials
+  
+    Given user is on the login page
+    When user enters username "<username>" and password "<password>"
+    And user clicks on login button
+    Then login should be "<status>" with "<message>"
+    
+  Examples:
+  |  username   |  password    | status     | message  |
+  |  student   |  Password123  | success    | Logged In Successfully    |
+  |  student1  |  Password123  | failure    | Your username is invalid! |
+  |  student   |  password     | failure    | Your password is invalid! |
