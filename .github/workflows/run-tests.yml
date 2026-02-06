@@ -43,7 +43,7 @@ jobs:
       # 6️⃣ Archive Cucumber HTML reports
       - name: Archive Cucumber report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cucumber-report
           path: target/cucumber-reporting-html/
