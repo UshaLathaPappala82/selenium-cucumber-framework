@@ -38,7 +38,7 @@ jobs:
 
       # 5️⃣ Run Maven tests
       - name: Run Maven tests
-        run: mvn clean test
+        run: mvn clean test -Dheadless=true
 
       # 6️⃣ Archive Cucumber HTML reports
       - name: Archive Cucumber report
